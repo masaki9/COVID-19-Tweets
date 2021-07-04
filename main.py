@@ -18,6 +18,8 @@ for file in json_file_paths:
     dfs.append(df)
 df_tweet = pd.concat(dfs, ignore_index=True)
 
+df_tweet.sort_values(by=['created_at'], inplace=True, ascending=False)
+
 dfs = []
 for file in score_file_paths:
     df = pd.read_csv(file, header=None)
@@ -72,3 +74,5 @@ keywords = ['Pfizer', 'Moderna', 'AstraZeneca', 'Janssen', 'Johnson & Johnson',
 keywords = [i.lower() for i in keywords]
 
 df_tweet_ca = df_tweet_ca[df_tweet_ca['full_text'].str.contains('|'.join(keywords))]
+
+df_tweet_ca.to_csv('data/covid_vaccine_tweets_canada.csv', index=False)
