@@ -53,8 +53,15 @@ df_tweet.drop('place', axis=1, inplace=True)
 df_tweet["full_text"] = df_tweet["full_text"].str.lower()
 
 df_tweet['date'] = pd.to_datetime(df_tweet['created_at']).dt.date
-df_tweet['time'] = pd.to_datetime(df_tweet['created_at']).dt.time
-df_tweet = df_tweet[['id', 'date', 'time', 'full_text', 'retweeted',
+
+
+def get_yyyy_mm(date):
+    return str(date).split('-')[0] + '-' + str(date).split('-')[1]
+
+
+df_tweet['yyyy-mm'] = df_tweet['date'].apply(get_yyyy_mm)
+
+df_tweet = df_tweet[['id', 'date', 'yyyy-mm', 'full_text', 'retweeted',
                      'lang', 'full_place_name', 'country']]
 
 df_tweet = pd.merge(df_tweet, df_id_and_score, left_on='id', right_on='id', how='inner')
@@ -109,5 +116,6 @@ def remove_emojis(text):
 
 # df_tweet_ca['full_text'] = df_tweet_ca['full_text'].apply(convert_emojis)
 df_tweet_ca['full_text'] = df_tweet_ca['full_text'].apply(remove_emojis)
+
 print("COVID Vac Size: {}".format(df_tweet_ca.shape))
 df_tweet_ca.to_csv('data/covid_vaccine_tweets_canada.csv', index=False)
