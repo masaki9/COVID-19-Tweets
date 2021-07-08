@@ -1,17 +1,9 @@
 import matplotlib.pyplot as plt
-from matplotlib.transforms import BboxBase
-import nltk
-from nltk.tokenize import word_tokenize
+# from nltk.tokenize import word_tokenize
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from nltk import RegexpTokenizer
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.util import ngrams
-from collections import Counter
-import string
-from sklearn.feature_extraction.text import CountVectorizer
+import utils as utils
 
 pd.set_option("display.max_rows", 100)
 pd.set_option('display.max_columns', 100)
@@ -37,17 +29,6 @@ plt.xlabel('Sentiment Score')
 plt.title('Sentiment Score Distribution')
 plt.show()
 
-
-def add_bar_value_labels(ax, spacing=5, decimal=4, size=10):
-    # For each bar, place a label
-    for rect in ax.patches:
-        y_value = rect.get_height()
-        x_value = rect.get_x() + rect.get_width() / 2
-        data_label = np.round(rect.get_height(), decimals=decimal)
-        ax.annotate(data_label, (x_value, y_value), xytext=(0, spacing), size=size,
-                    textcoords="offset points", ha='center', va='bottom')
-
-
 df_num_tweets_by_month = df[['id', 'yyyy-mm']].groupby('yyyy-mm').count().reset_index()
 df_num_tweets_by_month = df_num_tweets_by_month.rename(columns={'id': 'Number of Tweets'})
 
@@ -60,7 +41,7 @@ plt.xlabel('Month (yyyy-mm)')
 plt.ylabel('Number of Tweets')
 plt.title('Number of COVID-19 Vaccine Related Tweets in Canada by Month')
 ax = plt.gca()
-add_bar_value_labels(ax)
+utils.add_bar_value_labels(ax)
 plt.show()
 
 df_avg_scores_by_month = df[['yyyy-mm', 'sentiment_score']].groupby('yyyy-mm').mean().reset_index()
@@ -74,5 +55,15 @@ plt.xlabel('Month (yyyy-mm)')
 plt.ylabel('Average Sentiment Score')
 plt.title('Average Sentiment Score by Month')
 ax = plt.gca()
-add_bar_value_labels(ax)
+utils.add_bar_value_labels(ax)
 plt.show()
+
+# df['tokenized'] = df['full_text'].apply(word_tokenize)
+
+df['text_processed'] = df["full_text"].apply(utils.remove_punctuations)
+df['text_processed'] = df['text_processed'].apply(utils.remove_stopwords)
+df['text_processed'] = df['text_processed'].apply(utils.stem_words)
+
+unigrams = utils.list_ngrams(df, 'text_processed', 'sentiment_score', 0.00000001, 1.0, 2)
+print()
+unigrams = utils.list_ngrams(df, 'text_processed', 'sentiment_score', -1.0, -0.00000001, 2)

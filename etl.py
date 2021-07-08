@@ -1,6 +1,6 @@
 import glob
 import pandas as pd
-from emoji import UNICODE_EMOJI_ENGLISH
+import utils as utils
 
 pd.set_option("display.max_rows", 100)
 pd.set_option('display.max_columns', 100)
@@ -54,12 +54,7 @@ df_tweet["full_text"] = df_tweet["full_text"].str.lower()
 
 df_tweet['date'] = pd.to_datetime(df_tweet['created_at']).dt.date
 
-
-def get_yyyy_mm(date):
-    return str(date).split('-')[0] + '-' + str(date).split('-')[1]
-
-
-df_tweet['yyyy-mm'] = df_tweet['date'].apply(get_yyyy_mm)
+df_tweet['yyyy-mm'] = df_tweet['date'].apply(utils.get_yyyy_mm)
 
 df_tweet = df_tweet[['id', 'date', 'yyyy-mm', 'full_text', 'retweeted',
                      'lang', 'full_place_name', 'country']]
@@ -93,29 +88,8 @@ df_tweet_ca['full_text'] = df_tweet_ca['full_text']\
 spam_pattern = 'fighting stigma:|fighting stigma :|fighting stigma —|view article...'
 df_tweet_ca = df_tweet_ca[df_tweet_ca["full_text"].str.contains(spam_pattern) == False]
 
+# df_tweet_ca['full_text'] = df_tweet_ca['full_text'].apply(utils.convert_emojis)
+df_tweet_ca['full_text'] = df_tweet_ca['full_text'].apply(utils.remove_emojis)
 
-def convert_emojis(text):
-    converted = []
-    for char in text:
-        if char in UNICODE_EMOJI_ENGLISH:
-            converted.append(UNICODE_EMOJI_ENGLISH[char])
-        else:
-            converted.append(char)
-    return ''.join(converted)
-
-
-def remove_emojis(text):
-    text_wo_emoji = []
-    for char in text:
-        if char in UNICODE_EMOJI_ENGLISH:
-            text_wo_emoji.append('')
-        else:
-            text_wo_emoji.append(char)
-    return ''.join(text_wo_emoji)
-
-
-# df_tweet_ca['full_text'] = df_tweet_ca['full_text'].apply(convert_emojis)
-df_tweet_ca['full_text'] = df_tweet_ca['full_text'].apply(remove_emojis)
-
-print("COVID Vac Size: {}".format(df_tweet_ca.shape))
+print("Processed Dataset Size: {}".format(df_tweet_ca.shape))
 df_tweet_ca.to_csv('data/covid_vaccine_tweets_canada.csv', index=False)
