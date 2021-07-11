@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import utils as utils
+from wordcloud import WordCloud
 
 pd.set_option("display.max_rows", 200)
 pd.set_option('display.max_columns', 100)
@@ -79,6 +80,14 @@ plt.title('Average Sentiment Score by Month', size=18)
 ax = plt.gca()
 utils.add_bar_value_labels(ax)
 # plt.show()
+
+
+wc = WordCloud(height=2000, width=2000, background_color='black')
+wc = wc.generate(' '.join(df['text_processed']))
+plt.imshow(wc, interpolation="bilinear")
+plt.title("Common Words in COVID-19 Vaccine Related Tweets in Canada", size=18)
+plt.axis('off')
+
 
 print('\nPositive Sentiment Unigrams')
 unigrams_pos_sentiment = utils.get_ngrams_df(df, 'text_processed', 'sentiment_label', 1, 1)
