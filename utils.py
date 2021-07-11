@@ -1,11 +1,15 @@
 from collections import Counter
 from emoji import UNICODE_EMOJI_ENGLISH
 from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 import string
 
 
@@ -36,14 +40,38 @@ def remove_emojis(text):
     return ''.join(text_wo_emoji)
 
 
+def correct_spellings(text):
+    ''' Correct some common typos. '''
+    dict = {'dos': 'dose', 'vaccin': 'vaccine',
+            '1st': 'first', '2nd': 'second', '1': 'one', '2': 'two',
+            'pvt': 'private', 'govt': 'government'}
+
+    word_tokens = word_tokenize(text)
+
+    corrected = []
+    for word in word_tokens:
+        word = word.strip()
+        if word in dict.keys():
+            word = dict.get(word)
+        corrected.append(word)
+
+    return ' '.join(corrected)
+
+
 def remove_stopwords(text):
     ''' Remove stop words that do not carry useful information. '''
     stop_words = set(stopwords.words('english'))
+    stop_words.update(['r', 'v', 'u', 'ur', 'us', 'im', 'ive', 'sup', 'le',
+                       'nt', 'cuz', 'thats', 'that\'s', 'around', 'besides',
+                       'across', 'along', 'always', 'still', 'till', 'among',
+                       'please', 'inc', 'weve'])
+
     word_tokens = word_tokenize(text)
 
     filtered = []
     for word in word_tokens:
-        if word not in stop_words:
+        word = word.strip()
+        if (word not in stop_words):
             filtered.append(word)
 
     return filtered
@@ -51,8 +79,8 @@ def remove_stopwords(text):
 
 def remove_punctuations(text):
     ''' Remove punctuations from text '''
-    # "’" and "‘" are not in string.punctuation so they are added.
-    pattern = r"[{}{}]".format(string.punctuation, '’‘')
+    # "’", "‘", "—", "…", "“", "”", and "–" are added in addition for removal.
+    pattern = r"[{}{}]".format(string.punctuation, '’‘—…“”–')
     return text.translate(str.maketrans('', '', pattern))
 
 
@@ -60,6 +88,14 @@ def stem_words(text):
     ''' Remove affixes from words using PorterStemmer. '''
     ps = PorterStemmer()
     text = [ps.stem(word) for word in text]
+    return ' '.join(text)
+
+
+def lemmatize_words(text):
+    ''' Convert words to the base form
+    while ensuring the convered words are part of the language. '''
+    wnl = WordNetLemmatizer()
+    text = [wnl.lemmatize(word) for word in text]
     return ' '.join(text)
 
 
@@ -73,11 +109,10 @@ def vectorize_words(text):
     return matrix
 
 
-def list_ngrams(df, text_col, score_col, score_start, score_end,
-                n_gram_size, most_common=50):
-    ''' Create a list of n-grams '''
-    # Create df based on the score range.
-    df = df[(df[score_col] >= score_start) & (df[score_col] <= score_end)]
+def get_ngrams_df(df, text_col, sentiment_label_col, sentiment_label, n_gram_size):
+    ''' Get a dataframe containing n-grams and frequencies for the sentiment label. '''
+    # Create df for the sentiment label.
+    df = df[(df[sentiment_label_col] == sentiment_label)]
 
     sentences = [sentence.split() for sentence in df[text_col]]
 
@@ -85,15 +120,17 @@ def list_ngrams(df, text_col, score_col, score_start, score_end,
     for i in range(0, len(sentences)):
         words += sentences[i]
 
-    counter_list = Counter(ngrams(words, n_gram_size)).most_common(most_common)
+    # Create a df containing n-grams and frequencies.
+    df = pd.Series(ngrams(words, n_gram_size)).value_counts()
+    df = df.to_frame().reset_index()
+    df = df.rename(columns={'index': 'N-Gram', 0: 'Frequency'})
+    df = df.astype({'N-Gram': str})
 
-    print("\n{} N-Grams".format(n_gram_size))
-    for i in range(0, len(counter_list)):
-        print("Occurrences: ", str(counter_list[i][1]), end=" ")
-        delimiter = ' '
-        print("N-Gram: ", delimiter.join(counter_list[i][0]))
+    # Remove brackets, quotes, and commas from n-grams.
+    pattern = ',|\'|\\(|\\)'
+    df['N-Gram'] = df['N-Gram'].str.replace(pattern, '', regex=True)
 
-    return counter_list
+    return df
 
 
 def add_bar_value_labels(ax, spacing=5, decimal=4, size=10):
