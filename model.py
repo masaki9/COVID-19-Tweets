@@ -27,26 +27,26 @@ def model_and_eval(X, y):
     model = LogisticRegression()
 
     mean_cv_score = cross_val_score(model, X_train, y_train, cv=10, scoring='accuracy').mean()
-    print("The mean accuracy score (10-fold CV): {:.4f}".format(mean_cv_score))
+    print('The mean accuracy score (10-fold CV): {:.4f}'.format(mean_cv_score))
 
     mean_cv_recall = cross_val_score(model, X_train, y_train, cv=10, scoring='recall_weighted').mean()
-    print("The mean recall score (10-fold CV): {:.4f}".format(mean_cv_recall))
+    print('The mean recall score (10-fold CV): {:.4f}'.format(mean_cv_recall))
 
     mean_cv_precision = cross_val_score(model, X_train, y_train, cv=10, scoring='precision_weighted').mean()
-    print("The mean recall score (10-fold CV): {:.4f}".format(mean_cv_precision))
+    print('The mean recall score (10-fold CV): {:.4f}'.format(mean_cv_precision))
 
     model.fit(X_train, y_train)  # Train with the train set
     y_pred = model.predict(X_test)  # Predict target values.
 
     acc = accuracy_score(y_pred, y_test)
-    print("\nThe accuracy score (test set) is: {:.4f}".format(acc))
+    print('\nThe accuracy score (test set) is: {:.4f}'.format(acc))
 
     # average: {'micro', 'macro', 'samples', 'weighted', 'binary'}
     recall = recall_score(y_pred, y_test, average='weighted')
-    print("The recall score (test set) is: {:.4f}".format(recall))
+    print('The recall score (test set) is: {:.4f}'.format(recall))
 
     precision = precision_score(y_pred, y_test, average='weighted')
-    print("The precision score (test set) is: {:.4f}".format(precision))
+    print('The precision score (test set) is: {:.4f}'.format(precision))
 
     report = classification_report(y_true=y_test, y_pred=y_pred, target_names=['Negative', 'Neutral', 'Positive'])
     print(report)

@@ -50,7 +50,6 @@ def correct_spellings(text):
 
     corrected = []
     for word in word_tokens:
-        word = word.strip()
         if word in dict.keys():
             word = dict.get(word)
         corrected.append(word)
@@ -70,7 +69,6 @@ def remove_stopwords(text):
 
     filtered = []
     for word in word_tokens:
-        word = word.strip()
         if (word not in stop_words):
             filtered.append(word)
 
@@ -104,7 +102,7 @@ def vectorize_words(text):
     cv = CountVectorizer(binary=True)
     cv.fit(text)
     matrix = cv.transform(text)
-    print("\nNumber vector size: {}".format(matrix.shape))
+    print('\nNumber vector size: {}'.format(matrix.shape))
 
     return matrix
 
@@ -141,7 +139,7 @@ def add_bar_value_labels(ax, spacing=5, decimal=4, size=10):
         x_value = rect.get_x() + rect.get_width() / 2
         data_label = np.round(rect.get_height(), decimals=decimal)
         ax.annotate(data_label, (x_value, y_value), xytext=(0, spacing), size=size,
-                    textcoords="offset points", ha='center', va='bottom')
+                    textcoords='offset points', ha='center', va='bottom')
 
 
 def label_score(score):

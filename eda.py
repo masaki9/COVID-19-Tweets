@@ -5,23 +5,23 @@ import seaborn as sns
 import utils as utils
 from wordcloud import WordCloud
 
-pd.set_option("display.max_rows", 200)
+pd.set_option('display.max_rows', 200)
 pd.set_option('display.max_columns', 100)
 pd.set_option('display.width', 100)
 pd.set_option('display.max_colwidth', 100)
 
 data = 'data/covid_vaccine_tweets_canada.csv'
 df = pd.read_csv(data, header=0, sep=',')
-print("Dataset Size: {}".format(df.shape))
+print('Dataset Size: {}'.format(df.shape))
 
-avg_score = np.mean(df["sentiment_score"])
-print("Average Sentiment Score: {:.4f}".format(avg_score))
+avg_score = np.mean(df['sentiment_score'])
+print('Average Sentiment Score: {:.4f}'.format(avg_score))
 
-max_score = np.max(df["sentiment_score"])
-print("Maximum Sentiment Score: {}".format(max_score))
+max_score = np.max(df['sentiment_score'])
+print('Maximum Sentiment Score: {}'.format(max_score))
 
-min_score = np.min(df["sentiment_score"])
-print("Minimum Sentiment Score: {}".format(min_score))
+min_score = np.min(df['sentiment_score'])
+print('Minimum Sentiment Score: {}'.format(min_score))
 
 dist_plot = sns.displot(data=df['sentiment_score'], kde=True, height=12, aspect=20/12)
 dist_plot.fig.subplots_adjust(top=0.95)
@@ -84,8 +84,8 @@ utils.add_bar_value_labels(ax)
 
 wc = WordCloud(height=2000, width=2000, background_color='black')
 wc = wc.generate(' '.join(df['text_processed']))
-plt.imshow(wc, interpolation="bilinear")
-plt.title("Common Words in COVID-19 Vaccine Related Tweets in Canada", size=18)
+plt.imshow(wc, interpolation='bilinear')
+plt.title('Common Words in COVID-19 Vaccine Related Tweets in Canada', size=18)
 plt.axis('off')
 
 

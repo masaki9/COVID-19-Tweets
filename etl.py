@@ -2,7 +2,7 @@ import glob
 import pandas as pd
 import utils as utils
 
-pd.set_option("display.max_rows", 100)
+pd.set_option('display.max_rows', 100)
 pd.set_option('display.max_columns', 100)
 pd.set_option('display.width', 100)
 pd.set_option('display.max_colwidth', 30)
@@ -38,14 +38,14 @@ countries = []
 
 for i in range(len(df_place)):
     try:
-        name = df_place.iloc[i].get("full_name")
+        name = df_place.iloc[i].get('full_name')
     except AttributeError:
-        name = ""
+        name = ''
 
     try:
-        country = df_place.iloc[i].get("country")
+        country = df_place.iloc[i].get('country')
     except AttributeError:
-        country = ""
+        country = ''
 
     full_place_names.append(name)
     countries.append(country)
@@ -54,13 +54,8 @@ df_tweet['full_place_name'] = full_place_names
 df_tweet['country'] = countries
 df_tweet.drop('place', axis=1, inplace=True)
 
-# df_tweet["full_text"] = df_tweet["full_text"].str.lower()
-
 df_tweet['date'] = pd.to_datetime(df_tweet['created_at']).dt.date
 df_tweet['yyyy-mm'] = df_tweet['date'].apply(utils.get_yyyy_mm)
-
-# df_tweet = df_tweet[['id', 'user_id', 'date', 'yyyy-mm', 'full_text', 'retweeted',
-#                      'lang', 'country']]
 
 df_tweet = pd.merge(df_tweet, df_id_and_score, left_on='id', right_on='id', how='inner')
 
@@ -81,7 +76,7 @@ keywords = ['Pfizer', 'Moderna', 'AstraZeneca', 'Astra Zeneca', 'Janssen', 'John
 keywords = [i.lower() for i in keywords]
 
 # Convert text to lowercase for text processing.
-df_tweet_ca["full_text"] = df_tweet_ca["full_text"].str.lower()
+df_tweet_ca['full_text'] = df_tweet_ca['full_text'].str.lower()
 
 # Get tweets that contain any of the keywords above.
 df_tweet_ca = df_tweet_ca[df_tweet_ca['full_text'].str.contains('|'.join(keywords))]
@@ -93,9 +88,10 @@ df_tweet_ca['full_text'] = df_tweet_ca['full_text']\
 df_tweet_ca['full_text'] = df_tweet_ca['full_text']\
     .str.replace('#\S+|@\S+', '', case=False, regex=True)
 
+# TODO: Find problematic users and remove them.
 # Remove spams and tweets unrelated to Canada
 spam_pattern = 'fighting stigma:|fighting stigma :|fighting stigma —|view article...|amgmt|ca \\||gmt —|cad —|utc -7 \\||sukhbir badal|amarinder singh|punjab chief minister|bengal chief minister|delhi chief minister|nadu chief minister|narendra modi|india|delhi|goa|bharat biotech|biological e|punjab|maha|pradesh|himachal|rahul gandhi|chandigarh|kangana ranaut|haryana|sputnik|sinovac|sinopharm|milkha singh|rasika dugal|raghu sharma|vivek oberoi|arshad warsi|vishal dadlani|sevak sharma|bengaluru|karnataka'
-df_tweet_ca = df_tweet_ca[df_tweet_ca["full_text"].str.contains(spam_pattern) == False]
+df_tweet_ca = df_tweet_ca[df_tweet_ca['full_text'].str.contains(spam_pattern) == False]
 
 # Remove a problematic user's tweets
 df_tweet_ca = df_tweet_ca[df_tweet_ca['user_id'] != 127943720]
@@ -107,9 +103,11 @@ df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].str.replace('&amp;
 
 # Replace 'doses' with 'dose' because
 # 'doses' does not get lemmatized properly (https://github.com/nltk/nltk/issues/2567).
-df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].str.replace('doses', 'dose', regex=True)
+df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].str.replace('doses', 'dose', regex=False)
 
-df_tweet_ca['text_processed'] = df_tweet_ca["text_processed"].apply(utils.remove_punctuations)
+df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].str.replace('per cent', 'percent', regex=False)
+
+df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.remove_punctuations)
 df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.correct_spellings)
 df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.remove_stopwords)
 df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.lemmatize_words)
@@ -120,5 +118,5 @@ df_tweet_ca['sentiment_label'] = df_tweet_ca['sentiment_score'].apply(utils.labe
 df_tweet_ca = df_tweet_ca[['id', 'date', 'yyyy-mm', 'text_processed',
                            'sentiment_score', 'sentiment_label']]
 
-print("Processed Dataset Size: {}".format(df_tweet_ca.shape))
+print('Processed Dataset Size: {}'.format(df_tweet_ca.shape))
 df_tweet_ca.to_csv('data/covid_vaccine_tweets_canada.csv', index=False)
