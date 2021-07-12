@@ -1,15 +1,11 @@
-from collections import Counter
 from emoji import UNICODE_EMOJI_ENGLISH
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import string
 
 
@@ -102,7 +98,6 @@ def vectorize_words(text):
     cv = CountVectorizer(binary=True)
     cv.fit(text)
     matrix = cv.transform(text)
-    print('\nNumber vector size: {}'.format(matrix.shape))
 
     return matrix
 

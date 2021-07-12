@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import utils as utils
@@ -10,21 +9,15 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 
-data = 'data/covid_vaccine_tweets_canada.csv'
-df = pd.read_csv(data, header=0, sep=',')
 
-# Transforms words into numerical data for use in machine learning
-vectorized = utils.vectorize_words(df['text_processed'])
+def model_and_eval(model, X, y):
+    ''' Train and evaluate a model. '''
+    print('Model: {}'.format(model))
 
-
-def model_and_eval(X, y):
-    ''' Create and evaluate a model. '''
-    # Create training set with 75% of data and test set with 25% of data.
+    # Create training set with 70% of data and test set with 30% of data.
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y.values.ravel(), train_size=0.75, test_size=0.25, random_state=40
+        X, y.values.ravel(), train_size=0.7, test_size=0.3, random_state=5
     )
-
-    model = LogisticRegression()
 
     mean_cv_score = cross_val_score(model, X_train, y_train, cv=10, scoring='accuracy').mean()
     print('The mean accuracy score (10-fold CV): {:.4f}'.format(mean_cv_score))
@@ -54,23 +47,40 @@ def model_and_eval(X, y):
     return y_test, y_pred
 
 
-# Model using vectorized tweets as X and sentiment labels as y
-y_test, y_pred = model_and_eval(vectorized, df[['sentiment_label']])
+def show_confusion_matrix(y_test, y_pred):
+    ''' Plot a confusion matrix. '''
+    cm = confusion_matrix(y_test, y_pred)
+    inds = ['Negative', 'Neutral', 'Positive']
+    cols = ['Negative', 'Neutral', 'Positive']
+    df = pd.DataFrame(cm, index=inds, columns=cols)
 
-# Plot a confusion matrix
+    plt.figure(figsize=(12, 9))
 
-cm = confusion_matrix(y_test, y_pred)
-inds = ['Negative', 'Neutral', 'Positive']
-cols = ['Negative', 'Neutral', 'Positive']
-df = pd.DataFrame(cm, index=inds, columns=cols)
+    ax = sns.heatmap(df, cmap='Blues', annot=True, fmt='g')
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
+    ax.set_yticklabels(ax.get_yticklabels(), rotation=0, horizontalalignment='right')
 
-plt.figure(figsize=(12, 9))
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Sentiment Predictions - Actual vs Predicted')
+    plt.show()
 
-ax = sns.heatmap(df, cmap='Blues', annot=True, fmt='g')
-ax.set_xticklabels(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
-ax.set_yticklabels(ax.get_yticklabels(), rotation=0, horizontalalignment='right')
 
-plt.xlabel('Predicted')
-plt.ylabel('Actual')
-plt.title('Sentiment Predictions - Actual vs Predicted')
-plt.show()
+if __name__ == "__main__":
+    # Peform modeling for Canada
+    df = pd.read_csv('data/covid_vaccine_tweets_canada.csv', header=0, sep=',')
+
+    # Transforms words into numerical data for use in machine learning
+    vectorized = utils.vectorize_words(df['text_processed'].values.astype('U'))
+    model = LogisticRegression()
+
+    # Model using vectorized tweets as X and sentiment labels as y
+    y_test, y_pred = model_and_eval(model, vectorized, df[['sentiment_label']])
+    show_confusion_matrix(y_test, y_pred)
+
+    # # Peform modeling for the globe
+    # df = pd.read_csv('data/covid_vaccine_tweets_global.csv', header=0, sep=',')
+    # vectorized = utils.vectorize_words(df['text_processed'].values.astype('U'))
+    # model = LogisticRegression()
+    # y_test, y_pred = model_and_eval(model, vectorized, df[['sentiment_label']])
+    # show_confusion_matrix(y_test, y_pred)

@@ -28,29 +28,22 @@ df_id_and_score = pd.concat(dfs, ignore_index=True)
 df_id_and_score.columns = ['id', 'sentiment_score']
 df_id_and_score.drop_duplicates(inplace=True)
 
+# Replace nulls with empty dicts and then flatten the user column.
 df_tweet['user'] = df_tweet['user'].apply(lambda x: {} if pd.isna(x) else x)
 df_user = pd.json_normalize(df_tweet['user'])
 df_tweet['user_id'] = df_user['id']
 
+# Get each row's country data from the place column.
 df_place = df_tweet['place']
-full_place_names = []
 countries = []
-
 for i in range(len(df_place)):
-    try:
-        name = df_place.iloc[i].get('full_name')
-    except AttributeError:
-        name = ''
-
     try:
         country = df_place.iloc[i].get('country')
     except AttributeError:
         country = ''
 
-    full_place_names.append(name)
     countries.append(country)
 
-df_tweet['full_place_name'] = full_place_names
 df_tweet['country'] = countries
 df_tweet.drop('place', axis=1, inplace=True)
 
