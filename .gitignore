@@ -1,1 +1,5 @@
 data_hydrated/*/*
+covid_vaccine_tweets_canada.csv
+covid_vaccine_tweets_global.csv
+covid_vaccine_tweets_canada_unprocessed.csv
+plots/*
