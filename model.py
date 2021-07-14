@@ -8,6 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
+import time
 
 
 def model_and_eval(model, X, y):
@@ -16,7 +17,7 @@ def model_and_eval(model, X, y):
 
     # Create training set with 70% of data and test set with 30% of data.
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y.values.ravel(), train_size=0.7, test_size=0.3, random_state=5
+        X, y.values.ravel(), train_size=0.7, test_size=0.3, random_state=45
     )
 
     mean_cv_score = cross_val_score(model, X_train, y_train, cv=10, scoring='accuracy').mean()
@@ -72,15 +73,28 @@ if __name__ == "__main__":
 
     # Transforms words into numerical data for use in machine learning
     vectorized = utils.vectorize_words(df['text_processed'].values.astype('U'))
-    model = LogisticRegression()
 
-    # Model using vectorized tweets as X and sentiment labels as y
-    y_test, y_pred = model_and_eval(model, vectorized, df[['sentiment_label']])
-    show_confusion_matrix(y_test, y_pred)
+    models = [LogisticRegression(), MultinomialNB(), DecisionTreeClassifier(), LinearSVC()]
+    for model in models:
+        start_time = time.time()
+        # Model using vectorized tweets as X and sentiment labels as y
+        y_test, y_pred = model_and_eval(model, vectorized, df[['sentiment_label']])
+        elapsed_time = time.time() - start_time
+        print('Elapsed Time: {:.4f} Seconds\n'.format(elapsed_time))
+        # show_confusion_matrix(y_test, y_pred)
+
 
     # # Peform modeling for the globe
     # df = pd.read_csv('data/covid_vaccine_tweets_global.csv', header=0, sep=',')
+
+    # # Transforms words into numerical data for use in machine learning
     # vectorized = utils.vectorize_words(df['text_processed'].values.astype('U'))
-    # model = LogisticRegression()
-    # y_test, y_pred = model_and_eval(model, vectorized, df[['sentiment_label']])
-    # show_confusion_matrix(y_test, y_pred)
+
+    # models = [LogisticRegression(max_iter=200), MultinomialNB(), DecisionTreeClassifier(), LinearSVC()]
+    # for model in models:
+    #     start_time = time.time()
+    #     # Model using vectorized tweets as X and sentiment labels as y
+    #     y_test, y_pred = model_and_eval(model, vectorized, df[['sentiment_label']])
+    #     elapsed_time = time.time() - start_time
+    #     print('Elapsed Time: {:.4f} Seconds\n'.format(elapsed_time))
+    #     # show_confusion_matrix(y_test, y_pred)

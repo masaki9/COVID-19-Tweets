@@ -50,6 +50,7 @@ df_tweet.drop('place', axis=1, inplace=True)
 df_tweet['date'] = pd.to_datetime(df_tweet['created_at']).dt.date
 df_tweet['yyyy-mm'] = df_tweet['date'].apply(utils.get_yyyy_mm)
 
+# Perform a join to add sentiment scores to df_tweet
 df_tweet = pd.merge(df_tweet, df_id_and_score, left_on='id', right_on='id', how='inner')
 
 df_tweet = df_tweet[df_tweet['retweeted'] == False]
@@ -102,11 +103,19 @@ df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].str.replace('per c
 
 df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.remove_punctuations)
 df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.correct_spellings)
+
+# Replace dose one and dose two with first dose and second dose respectively for consistency.
+df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].str.replace('dose one', 'first dose', regex=False)
+df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].str.replace('dose two', 'second dose', regex=False)
+
 df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.remove_stopwords)
 df_tweet_ca['text_processed'] = df_tweet_ca['text_processed'].apply(utils.lemmatize_words)
 
 # Create labels based on sentiment scores
 df_tweet_ca['sentiment_label'] = df_tweet_ca['sentiment_score'].apply(utils.label_score)
+
+df_unprocessed_tweet_ca = df_tweet_ca[['id', 'date', 'full_text']]
+df_unprocessed_tweet_ca.to_csv('data/covid_vaccine_tweets_canada_unprocessed.csv', index=False)
 
 df_tweet_ca = df_tweet_ca[['id', 'date', 'yyyy-mm', 'text_processed',
                            'sentiment_score', 'sentiment_label']]

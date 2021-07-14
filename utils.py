@@ -37,7 +37,7 @@ def remove_emojis(text):
 
 
 def correct_spellings(text):
-    ''' Correct some common typos. '''
+    ''' Correct some spellings. '''
     dict = {'dos': 'dose', 'vaccin': 'vaccine',
             '1st': 'first', '2nd': 'second', '1': 'one', '2': 'two',
             'pvt': 'private', 'govt': 'government'}
@@ -57,9 +57,9 @@ def remove_stopwords(text):
     ''' Remove stop words that do not carry useful information. '''
     stop_words = set(stopwords.words('english'))
     stop_words.update(['r', 'v', 'u', 'ur', 'us', 'im', 'ive', 'sup', 'le',
-                       'nt', 'cuz', 'thats', 'that\'s', 'around', 'besides',
-                       'across', 'along', 'always', 'still', 'till', 'among',
-                       'please', 'inc', 'weve'])
+                    'nt', 'cuz', 'thats', 'that\'s', 'around', 'besides',
+                    'across', 'along', 'always', 'still', 'till', 'among',
+                    'please', 'inc', 'weve', 'get', 'getting', 'go'])
 
     word_tokens = word_tokenize(text)
 
@@ -147,3 +147,10 @@ def label_score(score):
     else:
         value = 1
     return value
+
+
+if __name__ == "__main__":
+    test = ['immune', 'immunities', 'immunizations']
+    print('Test Data: {}'.format(test))
+    print('Stemming: {}'.format(stem_words(test)))
+    print('Lemmatizing: {}'.format(lemmatize_words(test)))

@@ -73,7 +73,7 @@ def eda(data):
     df_avg_scores_by_month = df_avg_scores_by_month.rename(columns={'sentiment_score': 'Average Sentiment Score'})
 
     plt.figure(figsize=(20, 12))
-    x_axis = df_num_tweets_by_month['yyyy-mm']
+    x_axis = df_avg_scores_by_month['yyyy-mm']
     y_axis = df_avg_scores_by_month['Average Sentiment Score']
     plt.bar(x_axis, y_axis, color='lightblue')
     plt.xlabel('Month (yyyy-mm)', size=14)
@@ -83,6 +83,7 @@ def eda(data):
     utils.add_bar_value_labels(ax)
     # plt.show()
 
+    plt.figure(figsize=(20, 12))
     wc = WordCloud(height=2000, width=2000, background_color='black')
     wc = wc.generate(' '.join(df['text_processed']))
     plt.imshow(wc, interpolation='bilinear')
@@ -108,10 +109,11 @@ def eda(data):
     bigrams_pos_sentiment = utils.get_ngrams_df(df, 'text_processed', 'sentiment_label', 1, 2)
     print(bigrams_pos_sentiment.head(n=50))
 
-    plt.figure(figsize=(20, 12))
+    fig = plt.figure(figsize=(20, 12))
     x_axis = bigrams_pos_sentiment['N-Gram'][:30]
     y_axis = bigrams_pos_sentiment['Frequency'][:30]
     plt.bar(x_axis, y_axis, color='lightgreen')
+    fig.subplots_adjust(bottom=0.15)
     plt.xlabel('Bigram', size=14)
     plt.xticks(rotation=45)
     plt.ylabel('Frequency', size=14)
@@ -123,10 +125,11 @@ def eda(data):
     print('\nPositive Sentiment Trigrams')
     print(trigrams_pos_sentiment.head(n=50))
 
-    plt.figure(figsize=(20, 12))
+    fig = plt.figure(figsize=(20, 12))
     x_axis = trigrams_pos_sentiment['N-Gram'][:30]
     y_axis = trigrams_pos_sentiment['Frequency'][:30]
     plt.bar(x_axis, y_axis, color='lightgreen')
+    fig.subplots_adjust(bottom=0.18)
     plt.xlabel('Trigram', size=14)
     plt.xticks(rotation=45)
     plt.ylabel('Frequency', size=14)
@@ -153,10 +156,11 @@ def eda(data):
     bigrams_neg_sentiment = utils.get_ngrams_df(df, 'text_processed', 'sentiment_label', -1, 2)
     print(bigrams_neg_sentiment.head(n=50))
 
-    plt.figure(figsize=(20, 12))
+    fig = plt.figure(figsize=(20, 12))
     x_axis = bigrams_neg_sentiment['N-Gram'][:30]
     y_axis = bigrams_neg_sentiment['Frequency'][:30]
     plt.bar(x_axis, y_axis, color='lightpink')
+    fig.subplots_adjust(bottom=0.15)
     plt.xlabel('Bigram', size=14)
     plt.xticks(rotation=45)
     plt.ylabel('Frequency', size=14)
@@ -168,10 +172,11 @@ def eda(data):
     print('\nNegative Sentiment Trigrams')
     print(trigrams_neg_sentiment.head(n=50))
 
-    plt.figure(figsize=(20, 12))
+    fig = plt.figure(figsize=(20, 12))
     x_axis = trigrams_neg_sentiment['N-Gram'][:30]
     y_axis = trigrams_neg_sentiment['Frequency'][:30]
     plt.bar(x_axis, y_axis, color='lightpink')
+    fig.subplots_adjust(bottom=0.18)
     plt.xlabel('Trigram', size=14)
     plt.xticks(rotation=45)
     plt.ylabel('Frequency', size=14)
@@ -184,4 +189,4 @@ def eda(data):
 
 if __name__ == "__main__":
     eda('data/covid_vaccine_tweets_canada.csv')  # Plot charts for Canada
-    eda('data/covid_vaccine_tweets_global.csv')  # Plot charts for the globe
+    # eda('data/covid_vaccine_tweets_global.csv')  # Plot charts for the globe
