@@ -7,4 +7,4 @@
 
 #### Project Poster
 
-![Project Poster](images/project_poster.jpg)
+[![Project Poster](images/project_poster.jpg)](https://www.masakii.com/assets/images/covid19_vac_tweets/project_poster.jpg)
